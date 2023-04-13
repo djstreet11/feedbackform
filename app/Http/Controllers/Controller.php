@@ -6,27 +6,26 @@ use App\Http\Requests\FeedbackRequest;
 use App\Http\Resources\ListCollections\CityListCollection;
 use App\Mail\Feedback;
 use App\Repositories\CityRepository;
-use App\Services\CityService;
+use App\Services\FeedbackService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    /** @var CityService */
-    private $cityService;
+    /** @var FeedbackService */
+    private $feedbackService;
     /** @var CityRepository */
     private $cityRepository;
 
     public function __construct(
-        CityService $cityService,
+        FeedbackService $feedbackService,
         CityRepository $cityRepository
     ) {
-        $this->cityService = $cityService;
+        $this->feedbackService = $feedbackService;
         $this->cityRepository = $cityRepository;
     }
 
@@ -39,6 +38,7 @@ class Controller extends BaseController
 
     public function feedback(FeedbackRequest $request){
         $data = $request->validated();
+        $this->feedbackService->create($data);
         Mail::to('admin@test.com')->send(new Feedback($data));
         return redirect(route('index',['status'=>'ok']));
     }
